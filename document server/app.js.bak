@@ -1,0 +1,45 @@
+const express = require("express");
+const swaggerUI = require("swagger-ui-express");
+require("dotenv").config();
+const cors = require("cors");
+const PORT = process.env.PORT || 3562;
+const swaggerJsDoc = require("swagger-jsdoc");
+
+const swaggerConfig = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Экосистема ИАТЭ",
+      version: "1.0.0",
+      description: "Система для удаленного обучения студентов",
+    },
+    servers: [
+      {
+        url: "http://localhost:5000/ecosystem",
+      },
+    ],
+  },
+  apis: ["./documentation/*/*.js", "./documentation/*.js"],
+};
+
+const swaggerSpecs = swaggerJsDoc(swaggerConfig);
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+//  http://localhost:3562/
+app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerSpecs));
+
+const start = async () => {
+  try {
+    app.listen(PORT, () =>
+      console.log(`App has been started on port: ${PORT}`)
+    );
+  } catch (e) {
+    console.log("Documentation Server error", e.message);
+    process.exit(1);
+  }
+};
+
+start();
